@@ -17,10 +17,13 @@ jest.mock('../../context/auth', () => ({
   jest.mock('../../context/cart', () => ({
     useCart: jest.fn(() => [null, jest.fn()]) // Mock useCart hook to return null state and a mock function
   }));
-    
+  
 jest.mock('../../context/search', () => ({
     useSearch: jest.fn(() => [{ keyword: '' }, jest.fn()]) // Mock useSearch hook to return null state and a mock function
-  }));  
+  }));
+
+jest.mock("../../hooks/useCategory", () => jest.fn(() => []));
+  
 
   Object.defineProperty(window, 'localStorage', {
     value: {
