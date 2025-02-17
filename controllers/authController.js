@@ -26,6 +26,11 @@ export const registerController = async (req, res) => {
     if (!answer) {
       return res.send({ message: "Answer is Required" });
     }
+    // check invalid email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.send({ message: "Valid email is Required" });
+    }
     //check user
     const exisitingUser = await userModel.findOne({ email });
     //exisiting user
