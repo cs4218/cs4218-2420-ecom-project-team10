@@ -1,0 +1,56 @@
+import React from "react";
+import "@testing-library/jest-dom";
+import { render, screen, fireEvent } from "@testing-library/react";
+import { useSearch } from "../../context/search";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import SearchInput from "../../components/Form/SearchInput";
+import { describe } from "node:test";
+
+// Mock axios post 
+jest.mock('axios');
+jest.mock("react-router-dom", () => ({
+    useNavigate: jest.fn(),
+}));
+
+jest.mock('../../context/auth', () => ({
+    useAuth: jest.fn(() => [null, jest.fn()]) // Mock useAuth hook to return null state and a mock function for setAuth
+  }));
+
+jest.mock('../../context/cart', () => ({
+    useCart: jest.fn(() => [null, jest.fn()]) // Mock useCart hook to return null state and a mock function
+  }));
+    
+jest.mock('../../context/search', () => ({
+    useSearch: jest.fn(() => [{ keyword: '' }, jest.fn()]) // Mock useSearch hook to return null state and a mock function
+  }));  
+
+jest.mock("../../hooks/useCategory", () => jest.fn(() => [])); // Mock the use Category hook 
+
+describe("SearchInput Component", () => {
+    let mockSetValues, mockNavigate;
+
+    beforeEach(() => {
+        mockSetValues = jest.fn();
+        mockNavigate = jest.fn();
+        useSearch.mockReturnValue([{ keyword: "", results: [] }, mockSetValues]);
+        useNavigate.mockReturnValue(mockNavigate);
+    });
+
+    it("renders the search input and button", () => {
+        render(<SearchInput />);
+
+        expect(screen.getByPlaceholderText("Search")).toBeInTheDocument();
+        expect(screen.getByRole("button", { name: /search/i })).toBeInTheDocument();
+    });
+
+    it("updates search keyword when typing", () => {
+        render(<SearchInput />);
+        
+        const searchInput = screen.getByPlaceholderText("Search");
+        // change the search input to have the keyword book 
+        fireEvent.change(searchInput, { target: {value: "book" } });
+
+        expect(mockSetValues).toHaveBeenCalledWith({ keyword: "book", results: [] });
+    });
+});
