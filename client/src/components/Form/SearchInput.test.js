@@ -1,6 +1,6 @@
 import React from "react";
 import "@testing-library/jest-dom";
-import { render, screen, fireEvent } from "@testing-library/react";
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { useSearch } from "../../context/search";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -53,4 +53,37 @@ describe("SearchInput Component", () => {
 
         expect(mockSetValues).toHaveBeenCalledWith({ keyword: "book", results: [] });
     });
+
+    it("submits form and triggers API call and navigation", async () => {
+        axios.get.mockResolvedValueOnce({ data: [{ id: 1, name: "Product 1"}]});
+
+        render(<SearchInput />);
+
+        const searchInput = screen.getByPlaceholderText("Search");
+        const searchButton = screen.getByRole("button", { name: /search/i });
+
+        fireEvent.change(searchInput, { target: { value: "book" }});
+        fireEvent.click(searchButton);
+
+        await waitFor(() => expect(axios.get).toHaveBeenCalled());
+
+        expect(mockNavigate).toHaveBeenCalledWith("/search");
+    });
+
+    it ("handles search API error gracefully", async () => {
+        axios.get.mockRejectedValueOnce(new Error("No Products Could Be Found!"));
+
+        render(<SearchInput />);
+
+        const searchButton = screen.getByRole("button", { name: /search/i });
+
+        fireEvent.click(searchButton);
+        
+        await waitFor(() => expect(axios.get).toHaveBeenCalled());
+
+        expect(mockSetValues).not.toHaveBeenCalledWith(expect.objectContaining({ results: expect.any(Array) }));
+        expect(mockNavigate).not.toHaveBeenCalled();
+
+
+    })
 });
