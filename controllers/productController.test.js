@@ -1,5 +1,5 @@
 import { expect, jest } from "@jest/globals";
-import { getProductController, getSingleProductController, searchProductController, relatedProductController, productFiltersController, productCategoryController } from "./productController";
+import { getProductController, getSingleProductController, searchProductController, relatedProductController, productFiltersController, productCategoryController, productListController } from "./productController";
 import productModel from "../models/productModel.js";
 import categoryModel from "../models/categoryModel.js";
 import orderModel from "../models/orderModel.js";
@@ -9,7 +9,7 @@ jest.mock("../models/productModel.js");
 jest.mock("../models/categoryModel.js");
 jest.mock("../models/orderModel.js");
 
-describe("Product Controller Test", () => {
+describe("Get Product Controller Test", () => {
     let req, res;
 
     beforeEach(() => {
@@ -75,6 +75,21 @@ describe("Product Controller Test", () => {
         });
     });
 
+});
+
+describe("Get Single Product Controller Test", () => {
+    let req, res;
+
+    beforeEach(() => {
+        req = {};
+        res = {
+            status: jest.fn().mockReturnThis(),
+            send: jest.fn(),
+            json: jest.fn()
+        };
+        jest.clearAllMocks();
+    });
+
     // Test for getSingleProductController
     test("should return a single product by slug", async () => {
         req.params = { slug: "product-1" };
@@ -114,6 +129,20 @@ describe("Product Controller Test", () => {
             message: "Error while getting single product",
             error: expect.any(Error), // allow any error 
         });
+    });
+});
+
+describe("Search Product Controller Test", () => {
+    let req, res;
+
+    beforeEach(() => {
+        req = {};
+        res = {
+            status: jest.fn().mockReturnThis(),
+            send: jest.fn(),
+            json: jest.fn()
+        };
+        jest.clearAllMocks();
     });
 
     // test for searchProductController
@@ -157,6 +186,21 @@ describe("Product Controller Test", () => {
             error: expect.any(Error), // allow any error 
         });
 
+    });
+
+});
+
+describe("Related Product Controller Test", () => {
+    let req, res;
+
+    beforeEach(() => {
+        req = {};
+        res = {
+            status: jest.fn().mockReturnThis(),
+            send: jest.fn(),
+            json: jest.fn()
+        };
+        jest.clearAllMocks();
     });
 
     // test for relatedProductController
@@ -203,6 +247,21 @@ describe("Product Controller Test", () => {
             message: "Error while geting related product",
             error: expect.any(Error), // allow any error 
         });
+    });
+
+});
+
+describe("Filter Product Controller Test", () => {
+    let req, res;
+
+    beforeEach(() => {
+        req = {};
+        res = {
+            status: jest.fn().mockReturnThis(),
+            send: jest.fn(),
+            json: jest.fn()
+        };
+        jest.clearAllMocks();
     });
 
     // Test for productFiltersController 
@@ -308,5 +367,65 @@ describe("Product Controller Test", () => {
         });
     });
 
+});
 
+describe("Product Category Controller Test", () => {
+    let req, res;
+
+    beforeEach(() => {
+        req = {};
+        res = {
+            status: jest.fn().mockReturnThis(),
+            send: jest.fn(),
+            json: jest.fn()
+        };
+        jest.clearAllMocks();
+    });
+
+    // Test for productCategoryController
+    test("should return products for a given category", async () => {
+        req.params = {
+            slug: "electronics",
+        }
+
+        const mockCategory = { _id: "123", name: "Electronics", slug: "electronics" };
+        const mockProducts = [
+            { _id: "1", name: "Laptop", category: "123" },
+            { _id: "2", name: "Phone", category: "123" }, 
+        ];
+
+        categoryModel.findOne.mockResolvedValue(mockCategory);
+        productModel.find.mockReturnValue({
+            populate: jest.fn().mockResolvedValue(mockProducts),
+        });
+
+        await productCategoryController(req, res);
+
+        expect(categoryModel.findOne).toHaveBeenCalledWith({ slug: "electronics" });
+        expect(productModel.find).toHaveBeenCalledWith({ category: mockCategory });
+        expect(res.status).toHaveBeenCalledWith(200);
+        expect(res.send).toHaveBeenCalledWith({
+            success: true,
+            message: "Category Products Fetched",
+            category: mockCategory,
+            products: mockProducts,
+        });
+    });
+
+    test("should return error if category fetch fails", async () => {
+        req.params = {
+            slug: "invalid-category",
+        };
+
+        categoryModel.findOne.mockRejectedValue(new Error("Database error"));
+
+        await productCategoryController(req, res);
+
+        expect(res.status).toHaveBeenCalledWith(400);
+        expect(res.send).toHaveBeenCalledWith({
+            success: false,
+            error: expect.any(Error),
+            message: "Error While Getting products by category"
+        })
+    })
 });

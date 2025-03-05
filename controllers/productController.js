@@ -315,6 +315,7 @@ export const productCategoryController = async (req, res) => {
     const products = await productModel.find({ category }).populate("category");
     res.status(200).send({
       success: true,
+      message: "Category Products Fetched",
       category,
       products,
     });
@@ -322,7 +323,7 @@ export const productCategoryController = async (req, res) => {
     console.log(error);
     res.status(400).send({
       success: false,
-      message: "Error While Getting products",
+      message: "Error While Getting products by category",
       error,
     });
   }
