@@ -429,3 +429,99 @@ describe("Product Category Controller Test", () => {
         })
     })
 });
+
+describe("Get Product List Controller Test", () => {
+    let req, res;
+
+    beforeEach(() => {
+        req = {};
+        res = {
+            status: jest.fn().mockReturnThis(),
+            send: jest.fn(),
+            json: jest.fn()
+        };
+        jest.clearAllMocks();
+    });
+
+    test("should return paginated products", async () => {
+        req.params = {
+            page: "2",
+        }; // test page 2
+        const perPage = 6;
+        const page = 2;
+        const mockProducts = Array(6).fill({ name: "Product", price: 100});
+
+        productModel.find.mockReturnValue({
+            select: jest.fn().mockReturnThis(),
+            skip: jest.fn().mockReturnThis(),
+            limit: jest.fn().mockReturnThis(),
+            sort: jest.fn().mockResolvedValue(mockProducts),
+        });
+
+        await productListController(req, res);
+
+        expect(productModel.find).toHaveBeenCalledWith({});
+        expect(productModel.find().select).toHaveBeenCalledWith("-photo");
+        expect(productModel.find().skip).toHaveBeenCalledWith((page - 1) * perPage);
+        expect(productModel.find().limit).toHaveBeenCalledWith(perPage);
+        expect(productModel.find().sort).toHaveBeenCalledWith({ createdAt: -1 });
+
+        expect(res.status).toHaveBeenCalledWith(200);
+        expect(res.send).toHaveBeenCalledWith({
+            success: true,
+            message: "success in per page ctrl",
+            products: mockProducts,
+        });
+    });
+
+    test("should return default paginated products", async () => {
+        req.params = {
+            "page": null
+        };
+        const perPage = 6;
+        const page = 1; // default page if no req.params.page
+        const mockProducts = Array(6).fill({ name: "Product", price: 100});
+
+        productModel.find.mockReturnValue({
+            select: jest.fn().mockReturnThis(),
+            skip: jest.fn().mockReturnThis(),
+            limit: jest.fn().mockReturnThis(),
+            sort: jest.fn().mockResolvedValue(mockProducts),
+        });
+
+        await productListController(req, res);
+
+        expect(productModel.find).toHaveBeenCalledWith({});
+        expect(productModel.find().select).toHaveBeenCalledWith("-photo");
+        expect(productModel.find().skip).toHaveBeenCalledWith((page - 1) * perPage);
+        expect(productModel.find().limit).toHaveBeenCalledWith(perPage);
+        expect(productModel.find().sort).toHaveBeenCalledWith({ createdAt: -1 });
+
+        expect(res.status).toHaveBeenCalledWith(200);
+        expect(res.send).toHaveBeenCalledWith({
+            success: true,
+            message: "success in per page ctrl",
+            products: mockProducts,
+        });
+    });
+
+    test("should handle errors", async () => {
+        req.params = {
+            page: "2",
+        };
+    
+        productModel.find.mockImplementation(() => {
+          throw new Error("Database error");
+        });
+    
+        await productListController(req, res);
+    
+        expect(res.status).toHaveBeenCalledWith(400);
+        expect(res.send).toHaveBeenCalledWith({
+          success: false,
+          message: "error in per page ctrl",
+          error: expect.any(Error),
+        });
+    });
+
+});

@@ -246,6 +246,7 @@ export const productListController = async (req, res) => {
       .sort({ createdAt: -1 });
     res.status(200).send({
       success: true,
+      message: "success in per page ctrl",
       products,
     });
   } catch (error) {
