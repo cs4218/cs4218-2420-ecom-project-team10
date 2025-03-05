@@ -2,9 +2,6 @@ import "@testing-library/jest-dom";
 import React from "react";
 import { render, screen } from "@testing-library/react";
 import Search from "../pages/Search";
-import { SearchProvider } from "../context/search";
-import axios from 'axios';
-import { beforeEach } from "node:test";
 import { MemoryRouter, Routes, Route } from "react-router-dom";
 
 // mock axios get /api/v1/search/..
