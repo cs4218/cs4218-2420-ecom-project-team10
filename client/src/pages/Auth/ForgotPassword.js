@@ -20,7 +20,7 @@ const ForgotPassword = () => {
       });
 
       if (data.success) {
-        toast.success("Password reset successful! Please login.");
+        toast.success(data.message);
         navigate("/login");
       } else {
         toast.error(data.message);
@@ -48,7 +48,7 @@ const ForgotPassword = () => {
               placeholder="Enter your email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-            //   required
+              required
             />
           </div>
           <div className="mb-3">
@@ -59,7 +59,7 @@ const ForgotPassword = () => {
               placeholder="Enter your security answer"
               value={answer}
               onChange={(e) => setAnswer(e.target.value)}
-            //   required
+              required
             />
           </div>
           <div className="mb-3">
@@ -70,7 +70,7 @@ const ForgotPassword = () => {
               placeholder="Enter new password"
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
-            //   required
+              required
             />
           </div>
           <button type="submit" className="btn btn-primary">
