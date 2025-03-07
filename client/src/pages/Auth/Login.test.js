@@ -10,6 +10,13 @@ import Login from './Login';
 jest.mock('axios');
 jest.mock('react-hot-toast');
 
+
+const mockNavigate = jest.fn();
+jest.mock("react-router-dom", () => ({
+  ...jest.requireActual("react-router-dom"),
+  useNavigate: () => mockNavigate
+}));
+
 jest.mock('../../context/auth', () => ({
     useAuth: jest.fn(() => [null, jest.fn()]) // Mock useAuth hook to return null state and a mock function for setAuth
   }));
@@ -118,6 +125,39 @@ describe('Login Component', () => {
             }
         });
     });
+
+    it('should navigate user to homepage upon successul login', async () => {
+      axios.post.mockResolvedValueOnce({
+          data: {
+              success: true,
+              user: { id: 1, name: 'John Doe', email: 'test@example.com' },
+              token: 'mockToken'
+          }
+      });
+
+      const { getByPlaceholderText, getByText } = render(
+          <MemoryRouter initialEntries={['/login']}>
+              <Routes>
+                  <Route path="/login" element={<Login />} />
+              </Routes>
+          </MemoryRouter>
+      );
+
+      fireEvent.change(getByPlaceholderText('Enter Your Email'), { target: { value: 'test@example.com' } });
+      fireEvent.change(getByPlaceholderText('Enter Your Password'), { target: { value: 'password123' } });
+      fireEvent.click(getByText('LOGIN'));
+
+      await waitFor(() => expect(axios.post).toHaveBeenCalled());
+      expect(toast.success).toHaveBeenCalledWith(undefined, {
+          duration: 5000,
+          icon: '🙏',
+          style: {
+              background: 'green',
+              color: 'white'
+          }
+      });
+      await waitFor(() => expect(mockNavigate).toHaveBeenCalledWith("/"));
+  });
 
     it('should display error message on failed login', async () => {
         axios.post.mockRejectedValueOnce({ message: 'Invalid credentials' });
