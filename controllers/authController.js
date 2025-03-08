@@ -20,6 +20,9 @@ export const registerController = async (req, res) => {
     if (!phone) {
       return res.send({ message: "Phone no is Required" });
     }
+    if (!/^\d{2,15}$/.test(phone)) {
+      return res.status(400).send({ message: "Phone number must not exceed 15 digits and can contain only numbers" });
+    }
     if (!address) {
       return res.send({ message: "Address is Required" });
     }

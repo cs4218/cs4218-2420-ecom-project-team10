@@ -15,7 +15,21 @@ const Register = () => {
   const navigate = useNavigate();
   const today = new Date().toISOString().split("T")[0];
   
-  const handleBlur = (e) => {
+  const handlePhoneChange = (e) => {
+    const value = e.target.value;
+    if (/^\d*$/.test(value)) { 
+      if (value.length <= 15) { 
+        setPhone(value);
+      } else {
+        toast.error("Phone number cannot exceed 15 digits");
+      }
+    } else {
+      toast.error("Phone number must contain only numbers");
+    }
+  };
+
+  
+  const handleDOBBlur = (e) => {
     const inputDate = e.target.value;
     if (inputDate > today) {
       toast.error("Date of Birth cannot be in the future");
@@ -91,7 +105,7 @@ const Register = () => {
             <input
               type="text"
               value={phone}
-              onChange={(e) => setPhone(e.target.value)}
+              onChange={handlePhoneChange}
               className="form-control"
               id="exampleInputPhone1"
               placeholder="Enter Your Phone"
@@ -114,7 +128,7 @@ const Register = () => {
               type="date"
               value={DOB}
               onChange={(e) => setDOB(e.target.value)}
-              onBlur={handleBlur}
+              onBlur={handleDOBBlur}
               className="form-control"
               id="exampleInputDOB1"
               placeholder="Enter Your DOB"
