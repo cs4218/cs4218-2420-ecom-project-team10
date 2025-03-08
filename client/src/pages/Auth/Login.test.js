@@ -157,8 +157,20 @@ describe('Login Component', () => {
           }
       });
       await waitFor(() => expect(mockNavigate).toHaveBeenCalledWith("/"));
-  });
+  }); 
 
+  it('should navigate user to forgot password page upon clicking "Forgot Password" button', async () => {
+    const { getByPlaceholderText, getByText } = render(
+        <MemoryRouter initialEntries={['/login']}>
+            <Routes>
+                <Route path="/login" element={<Login />} />
+            </Routes>
+        </MemoryRouter>
+    );
+
+    fireEvent.click(getByText('Forgot Password'));
+    await waitFor(() => expect(mockNavigate).toHaveBeenCalledWith("/forgot-password"));
+}); 
     it('should display error message on failed login', async () => {
         axios.post.mockRejectedValueOnce({ message: 'Invalid credentials' });
 
