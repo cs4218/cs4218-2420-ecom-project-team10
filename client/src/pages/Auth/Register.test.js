@@ -97,4 +97,60 @@ describe('Register Component', () => {
     await waitFor(() => expect(axios.post).toHaveBeenCalled());
     expect(toast.error).toHaveBeenCalledWith('Something went wrong');
   });
+
+  it('should display an error if a future date is entered for DOB regardless of other fields', async () => {
+    const { getByPlaceholderText, getByText } = render(
+      <MemoryRouter initialEntries={['/register']}>
+        <Routes>
+          <Route path="/register" element={<Register />} />
+        </Routes>
+      </MemoryRouter>
+    );
+  
+    const dobInput = getByPlaceholderText('Enter Your DOB');
+    
+    fireEvent.change(dobInput, { target: { value: '2100-01-01' } });
+    fireEvent.blur(dobInput);
+  
+    await waitFor(() => expect(toast.error).toHaveBeenCalledWith("Date of Birth cannot be in the future"));
+  });
+
+  it('should display an error if a future date is entered for DOB regardless of other fields', async () => {
+    const { getByPlaceholderText, getByText } = render(
+      <MemoryRouter initialEntries={['/register']}>
+        <Routes>
+          <Route path="/register" element={<Register />} />
+        </Routes>
+      </MemoryRouter>
+    );
+  
+    const dobInput = getByPlaceholderText('Enter Your DOB');
+    
+    fireEvent.change(dobInput, { target: { value: '2100-01-01' } });
+    fireEvent.blur(dobInput);
+  
+    await waitFor(() => expect(toast.error).toHaveBeenCalledWith("Date of Birth cannot be in the future"));
+  });
+
+  it("should be able to input today's date as DOB" , async () => {
+    const today = new Date().toISOString().split("T")[0];
+  
+    const { getByPlaceholderText, getByText } = render(
+      <MemoryRouter initialEntries={['/register']}>
+        <Routes>
+          <Route path="/register" element={<Register />} />
+        </Routes>
+      </MemoryRouter>
+    );
+  
+    const dobInput = getByPlaceholderText('Enter Your DOB');
+    
+    fireEvent.change(dobInput, { target: { value: today } });
+    fireEvent.blur(dobInput);
+    
+    // Ensure that the DOB field correctly accepts today's date
+    expect(dobInput.value).toBe(today);
+    // Ensure no error message is displayed
+    await waitFor(() => expect(toast.error).not.toHaveBeenCalled());
+  });
 });

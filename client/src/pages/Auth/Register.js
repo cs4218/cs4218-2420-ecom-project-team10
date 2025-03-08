@@ -13,6 +13,15 @@ const Register = () => {
   const [DOB, setDOB] = useState("");
   const [answer, setAnswer] = useState("");
   const navigate = useNavigate();
+  const today = new Date().toISOString().split("T")[0];
+  
+  const handleBlur = (e) => {
+    const inputDate = e.target.value;
+    if (inputDate > today) {
+      toast.error("Date of Birth cannot be in the future");
+      setDOB("");
+    }
+  };
 
   // form function
   const handleSubmit = async (e) => {
@@ -102,13 +111,15 @@ const Register = () => {
           </div>
           <div className="mb-3">
             <input
-              type="Date"
+              type="date"
               value={DOB}
               onChange={(e) => setDOB(e.target.value)}
+              onBlur={handleBlur}
               className="form-control"
               id="exampleInputDOB1"
               placeholder="Enter Your DOB"
               required
+              max = {today}
             />
           </div>
           <div className="mb-3">
