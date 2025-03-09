@@ -1,4 +1,5 @@
 export default {
+
   setupFiles: ["<rootDir>/jest.setup.js"],
   projects: [
     {
@@ -64,3 +65,4 @@ export default {
     },
   ],
 };
+
