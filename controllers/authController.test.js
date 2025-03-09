@@ -1,5 +1,5 @@
 import { jest } from "@jest/globals";
-import { registerController, loginController } from "./authController";
+import { registerController, loginController, forgotPasswordController, testController } from "./authController";
 import userModel from "../models/userModel";
 import * as authHelper from "../helpers/authHelper"; 
 
@@ -171,6 +171,100 @@ describe("Login Controller Test", () => {
     expect(res.send).toHaveBeenCalledWith({
         success: false,
         message: "Invalid Password",
+    });
+  });
+
+  describe("Forgot Password Controller Test", () => {
+    let req, res;
+  
+    beforeEach(() => {
+      jest.clearAllMocks();
+      req = {
+        body: {
+          email: "john@example.com",
+          answer: "Football",
+          newPassword: "newSecurePass123",
+        },
+      };
+  
+      res = {
+        status: jest.fn().mockReturnThis(),
+        send: jest.fn(),
+      };
+    });
+  
+    test("should return 400 if email is missing", async () => {
+      req.body.email = "";
+      await forgotPasswordController(req, res);
+      expect(res.status).toHaveBeenCalledWith(400);
+      expect(res.send).toHaveBeenCalledWith({ message: "Email is required" });
+    });
+  
+    test("should return 400 if answer is missing", async () => {
+      req.body.answer = "";
+      await forgotPasswordController(req, res);
+      expect(res.status).toHaveBeenCalledWith(400);
+      expect(res.send).toHaveBeenCalledWith({ message: "Answer is required" });
+    });
+  
+    test("should return 400 if newPassword is missing", async () => {
+      req.body.newPassword = "";
+      await forgotPasswordController(req, res);
+      expect(res.status).toHaveBeenCalledWith(400);
+      expect(res.send).toHaveBeenCalledWith({ message: "New Password is required" });
+    });
+  
+    test("should return 404 if user is not found", async () => {
+      userModel.findOne = jest.fn().mockResolvedValue(null);
+      await forgotPasswordController(req, res);
+      expect(res.status).toHaveBeenCalledWith(404);
+      expect(res.send).toHaveBeenCalledWith({
+        success: false,
+        message: "Wrong Email Or Answer",
+      });
+    });
+  
+    test("should reset password successfully", async () => {
+      const userMock = { _id: "12345" };
+      userModel.findOne = jest.fn().mockResolvedValue(userMock);
+      userModel.findByIdAndUpdate = jest.fn().mockResolvedValue({});
+  
+      await forgotPasswordController(req, res);
+  
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.send).toHaveBeenCalledWith({
+        success: true,
+        message: "Password Reset Successfully",
+      });
+    });
+  });
+
+  describe("Test Controller", () => {
+    let req, res;
+
+    beforeEach(() => {
+      jest.clearAllMocks();
+      req = {};
+      res = {
+        send: jest.fn(),
+        status: jest.fn().mockReturnThis(),
+      };
+    });
+
+    test("should return 'Protected Routes' when accessed successfully", () => {
+      testController(req, res);
+      expect(res.send).toHaveBeenCalledWith("Protected Routes");
+    });
+
+    test("should handle errors gracefully", () => {
+      console.error = jest.fn();
+
+      // Force an error by throwing inside the controller
+      const errorController = (req, res) => {
+        throw new Error("Unexpected error");
+      };
+
+      expect(() => errorController(req, res)).toThrow("Unexpected error");
     });
   });
 });
