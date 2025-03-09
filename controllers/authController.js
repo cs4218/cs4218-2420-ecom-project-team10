@@ -26,6 +26,9 @@ export const registerController = async (req, res) => {
     if (!address) {
       return res.send({ message: "Address is Required" });
     }
+    if (!DOB) {
+      return res.send({ message: "Date of Birth is Required" });
+    }
     if (new Date(DOB) > new Date()) {
       return res.status(400).send({ message: "Date of Birth cannot be in the future" });
     }
@@ -89,7 +92,7 @@ export const loginController = async (req, res) => {
     if (!user) {
       return res.status(404).send({
         success: false,
-        message: "Email is not registerd",
+        message: "Email is not registered",
       });
     }
     const match = await comparePassword(password, user.password);
