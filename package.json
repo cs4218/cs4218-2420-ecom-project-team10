@@ -16,6 +16,9 @@
   "keywords": [],
   "author": "RP",
   "license": "ISC",
+  "jest": {
+    "testEnvironment": "jsdom"
+  },
   "dependencies": {
     "bcrypt": "^5.1.1",
     "braintree": "^3.22.0",
@@ -39,6 +42,7 @@
     "@babel/preset-env": "^7.24.5",
     "@babel/preset-react": "^7.24.1",
     "@playwright/test": "^1.44.0",
+    "@testing-library/react": "^16.2.0",
     "@types/node": "^20.12.12",
     "babel-jest": "^29.7.0",
     "identity-obj-proxy": "^3.0.0",
