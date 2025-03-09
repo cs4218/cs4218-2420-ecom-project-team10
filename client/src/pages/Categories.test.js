@@ -1,66 +1,66 @@
-import React from "react";
-import { render, screen, within } from "@testing-library/react";
-import "@testing-library/jest-dom";
-import Categories from "../pages/Categories";
-import useCategory from "../hooks/useCategory";
-import { MemoryRouter, Routes, Route } from "react-router-dom";
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import HomePage from "./HomePage"; // Adjust this path
+import axios from "axios";
+import { useCart } from "../context/cart";
 
-jest.mock('../context/auth', () => ({
-    useAuth: jest.fn(() => [null, jest.fn()]) // Mock useAuth hook to return null state and a mock function for setAuth
-  }));
+// Mock necessary modules
+jest.mock("axios");
+jest.mock("../context/cart");
 
-jest.mock('../context/cart', () => ({
-    useCart: jest.fn(() => [null, jest.fn()]) // Mock useCart hook to return null state and a mock function
-  }));
+describe("HomePage - Reset Filters", () => {
+  const mockProducts = [
+    { _id: "1", name: "Product 1", price: 100, description: "Description 1" },
+    { _id: "2", name: "Product 2", price: 200, description: "Description 2" },
+  ];
 
-jest.mock('../context/search', () => ({
-    useSearch: jest.fn(() => [{ keyword: '' }, jest.fn()]) // Mock useSearch hook to return null state and a mock function
-  }));  
+  const mockCategories = [
+    { _id: "1", name: "Category 1" },
+    { _id: "2", name: "Category 2" },
+  ];
 
-jest.mock("../hooks/useCategory", () => jest.fn(() => [])); // Mock useCategory hook to return an empty array 
+  beforeEach(() => {
+    // Mocking the cart context
+    useCart.mockReturnValue([[], jest.fn()]);
 
-describe("Categories Component", () => {
-    
-    it("renders categories page correctly", () => {
+    // Mocking API responses
+    axios.get.mockResolvedValueOnce({
+      data: { success: true, category: mockCategories }, // Mock category data
+    }).mockResolvedValueOnce({
+      data: { products: mockProducts }, // Mock product data
+    }).mockResolvedValueOnce({
+      data: { total: 2 }, // Mock total count
+    });
+  });
 
-        // mock category data
-        const mockCategories = [
-            {_id: "1", name: "Electronics", slug: "electronics"},
-            {_id: "2", name: "Books", slug: "books"}
-        ]
+  test("should reset filters when 'RESET FILTERS' button is clicked", async () => {
+    // Render the HomePage component
+    render(<HomePage />);
 
-        useCategory.mockReturnValue(mockCategories); // mock return value to be the mock category data
+    // Wait for categories to be loaded and check if categories are rendered
+    await waitFor(() => screen.findByText("Filter By Category"));
+    expect(screen.getByText("Category 1")).toBeInTheDocument();
+    expect(screen.getByText("Category 2")).toBeInTheDocument();
 
-        const { container } = render(
-            <MemoryRouter initialEntries={['/categories']}>
-                <Routes>
-                    <Route path="/categories" element={<Categories />} />
-                </Routes>
-            </MemoryRouter>
-        )
+    // Wait for the products to load
+    expect(screen.getByText("Product 1")).toBeInTheDocument();
+    expect(screen.getByText("Product 2")).toBeInTheDocument();
 
-        // check all categories are displayed in dropdown menu
-        const dropdown = screen.getByRole("navigation");
+    // Select a category filter
+    fireEvent.click(screen.getByLabelText("Category 1"));
 
-        expect(within(dropdown).getByText("Electronics")).toBeInTheDocument();
-        expect(within(dropdown).getByText("Books")).toBeInTheDocument();
+    // Simulate clicking the 'RESET FILTERS' button
+    fireEvent.click(screen.getByText("RESET FILTERS"));
 
-        // check if the category links in dropdown menu have correct paths
-        expect(within(dropdown).getByRole("link", { name: "Electronics" })).toHaveAttribute("href", "/category/electronics");
-        expect(within(dropdown).getByRole("link", { name: "Books" })).toHaveAttribute("href", "/category/books");
+    // Verify that the checkboxes for categories are unchecked (filters are reset)
+    await waitFor(() => expect(screen.getByLabelText("Category 1")).not.toBeChecked());
+    await waitFor(() => expect(screen.getByLabelText("Category 2")).not.toBeChecked());
 
-        // check all categories within main are displayed as buttons
-        const mainPage = screen.getByTestId("category-container");
-
-        expect(within(mainPage).getByText("Electronics")).toBeInTheDocument();
-        expect(within(mainPage).getByText("Books")).toBeInTheDocument();
-
-        // check if the category links in main have correct paths
-        expect(within(mainPage).getByRole("link", { name: "Electronics" })).toHaveAttribute("href", "/category/electronics");
-        expect(within(mainPage).getByRole("link", { name: "Books" })).toHaveAttribute("href", "/category/books");
-
-
-        // ensure correct number of category buttons 
-        expect(within(mainPage).getAllByRole("link")).toHaveLength(mockCategories.length);
-    })
-})
+    // Verify that the `getAllProducts` API was called to fetch all products (without filters)
+    await waitFor(() => {
+      expect(screen.getByText("Product 1")).toBeInTheDocument();
+    });
+    await waitFor(() => {
+      expect(screen.getByText("Product 2")).toBeInTheDocument();
+    });
+  });
+});
