@@ -5,10 +5,11 @@ import { useSearch } from "../../context/search";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import SearchInput from "../../components/Form/SearchInput";
-import { describe } from "node:test";
+import toast from 'react-hot-toast';
 
 // Mock axios post 
 jest.mock('axios');
+jest.mock('react-hot-toast');
 jest.mock("react-router-dom", () => ({
     useNavigate: jest.fn(),
 }));
@@ -28,12 +29,17 @@ jest.mock('../../context/search', () => ({
 jest.mock("../../hooks/useCategory", () => jest.fn(() => [])); // Mock the use Category hook 
 
 describe("SearchInput Component", () => {
-    let mockSetValues, mockNavigate;
+    let mockSetValues, mockNavigate, mockSearchState;
 
     beforeEach(() => {
-        mockSetValues = jest.fn();
         mockNavigate = jest.fn();
-        useSearch.mockReturnValue([{ keyword: "", results: [] }, mockSetValues]);
+        mockSearchState = { keyword: "", results: [] };
+
+        mockSetValues = jest.fn((newValues) => {
+            Object.assign(mockSearchState, newValues); // manually update the state
+        })
+
+        useSearch.mockImplementation(() => [mockSearchState, mockSetValues]);
         useNavigate.mockReturnValue(mockNavigate);
     });
 
@@ -63,6 +69,9 @@ describe("SearchInput Component", () => {
         const searchButton = screen.getByRole("button", { name: /search/i });
 
         fireEvent.change(searchInput, { target: { value: "book" }});
+
+        // wait for react state updates before proceeding
+        await waitFor(() => expect(mockSetValues).toHaveBeenCalledWith({ keyword: "book", results: []}));
         fireEvent.click(searchButton);
 
         await waitFor(() => expect(axios.get).toHaveBeenCalled());
@@ -75,15 +84,29 @@ describe("SearchInput Component", () => {
 
         render(<SearchInput />);
 
+        const searchInput = screen.getByPlaceholderText("Search");
         const searchButton = screen.getByRole("button", { name: /search/i });
 
-        fireEvent.click(searchButton);
-        
-        await waitFor(() => expect(axios.get).toHaveBeenCalled());
+        fireEvent.change(searchInput, { target: { value: "book" }});
 
-        expect(mockSetValues).not.toHaveBeenCalledWith(expect.objectContaining({ results: expect.any(Array) }));
+        // wait for react state updates before proceeding
+        await waitFor(() => expect(mockSetValues).toHaveBeenCalledWith({ keyword: "book", results: []}));
+        fireEvent.click(searchButton);
+
+        await waitFor(() => expect(axios.get).toHaveBeenCalled());
         expect(mockNavigate).not.toHaveBeenCalled();
 
+    })
+
+    it("handles blank search input", async () => {
+
+        render(<SearchInput />);
+
+        const searchButton = screen.getByRole("button", { name: /search/i });
+        fireEvent.click(searchButton);
+
+        expect(mockNavigate).not.toHaveBeenCalled();
+        await waitFor(() => expect(toast.error).toHaveBeenCalledWith("Please enter at least one character."))
 
     })
 });
