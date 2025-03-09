@@ -36,18 +36,7 @@ const HomePage = () => {
     getAllCategory();
     getTotal();
   }, []);
-  //get products
-  const getAllProducts = async () => {
-    try {
-      setLoading(true);
-      const { data } = await axios.get(`/api/v1/product/product-list/${page}`);
-      setLoading(false);
-      setProducts(data.products);
-    } catch (error) {
-      setLoading(false);
-      console.log(error);
-    }
-  };
+  
 
   //getTOtal COunt
   const getTotal = async () => {
@@ -68,6 +57,13 @@ const HomePage = () => {
     try {
       setLoading(true);
       const { data } = await axios.get(`/api/v1/product/product-list/${page}`);
+      
+      if (Array.isArray(data?.products)) {
+        setProducts([...products, ...data?.products]);
+      } else {
+        console.log("Invalid product data", data?.products);
+      }
+      
       setLoading(false);
       setProducts([...products, ...data?.products]);
     } catch (error) {
@@ -86,26 +82,78 @@ const HomePage = () => {
     }
     setChecked(all);
   };
-  useEffect(() => {
-    if (!checked.length || !radio.length) getAllProducts();
-  }, [checked.length, radio.length]);
+
 
   useEffect(() => {
-    if (checked.length || radio.length) filterProduct();
-  }, [checked, radio]);
-
-  //get filterd product
-  const filterProduct = async () => {
+    //get products
+  const getAllProducts = async () => {
     try {
-      const { data } = await axios.post("/api/v1/product/product-filters", {
-        checked,
-        radio,
-      });
-      setProducts(data?.products);
+      setLoading(true);
+      const { data } = await axios.get(`/api/v1/product/product-list/${page}`);
+      setLoading(false);
+
+      if (Array.isArray(data?.products)) {
+        setProducts([...products, ...data?.products]);
+      } else {
+        console.log("Invalid product data", data?.products);
+      }
+
+      // setProducts(data?.products);
     } catch (error) {
+      setLoading(false);
       console.log(error);
     }
   };
+
+    if (!checked.length || !radio.length) { 
+      getAllProducts();
+  }}, [checked.length, radio.length]);
+
+
+// //get filterd product
+//   const filterProduct = async () => {
+//     try {
+//       const { data } = await axios.post("/api/v1/product/product-filters", {
+//         checked,
+//         radio,
+//       });
+//       setProducts(data?.products);
+//     } catch (error) {
+//       console.log(error);
+//     }
+//   };
+
+//   useEffect(() => {
+//     if (checked.length || radio.length) filterProduct();
+//   }, [checked, radio, filterProduct]);
+  useEffect(() => {
+    const filterProduct = async () => {
+      try {
+        const { data } = await axios.post("/api/v1/product/product-filters", {
+          checked,
+          radio,
+        });
+
+        setProducts(data?.products);
+        
+        // Log the names of the products
+        if (data?.products) {
+          data.products.forEach(product => {
+            console.log(product.name); // This will log the name of each product
+          });
+        }
+        console.log("Filter Products API Response:", data);
+
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    if (checked.length || radio.length) filterProduct();
+  }, [checked, radio]); // No need to add `filterProduct` to the dependency array
+
+
+  
   return (
     <Layout title={"ALL Products - Best offers "}>
       {/* banner image */}
@@ -141,19 +189,39 @@ const HomePage = () => {
             </Radio.Group>
           </div>
           <div className="d-flex flex-column">
-            <button
-              className="btn btn-danger"
-              onClick={() => window.location.reload()}
-            >
+          {/* <button
+          className="btn btn-danger"
+          onClick={() => {
+            setChecked([]); // Reset categories filter
+            setRadio([]);    // Reset price filter
+            //getAllProducts(); // Re-fetch all products without filters
+          }}
+>
               RESET FILTERS
-            </button>
+            </button> */}
+            <button
+  className="btn btn-danger"
+  onClick={async () => {
+    setChecked([]);
+    setRadio([]);
+    try {
+      const { data } = await axios.get(`/api/v1/product/product-list/1`);
+      setProducts(data?.products || []);
+      setPage(1); // Reset the page to 1
+    } catch (error) {
+      console.log("Error resetting filters:", error);
+    }
+  }}
+>
+  RESET FILTERS
+</button>
           </div>
         </div>
         <div className="col-md-9 ">
           <h1 className="text-center">All Products</h1>
           <div className="d-flex flex-wrap">
             {products?.map((p) => (
-              <div className="card m-2" key={p._id}>
+              <div data-testid={`product-${p._id}`} className="card m-2" key={p._id}>
                 <img
                   src={`/api/v1/product/product-photo/${p._id}`}
                   className="card-img-top"
@@ -161,12 +229,11 @@ const HomePage = () => {
                 />
                 <div className="card-body">
                   <div className="card-name-price">
-                    <h5 className="card-title">{p.name}</h5>
+                  <h5 data-testid={`product-name-${p._id}`} className="card-title">{p.name || "No name available"}</h5>
                     <h5 className="card-title card-price">
-                      {p.price.toLocaleString("en-US", {
-                        style: "currency",
-                        currency: "USD",
-                      })}
+                      {typeof p.price === 'number'
+                        ? p.price.toLocaleString("en-US", { style: "currency", currency: "USD" })
+                        : "No price"}
                     </h5>
                   </div>
                   <p className="card-text ">
