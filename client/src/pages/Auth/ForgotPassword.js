@@ -7,11 +7,13 @@ import Layout from "../../components/Layout";
 const ForgotPassword = () => {
   const [email, setEmail] = useState("");
   const [answer, setAnswer] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [newPassword, setNewPassword] = useState("");
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsSubmitting(true);
     try {
       const { data } = await axios.post("/api/v1/auth/forgot-password", {
         email,
@@ -21,12 +23,16 @@ const ForgotPassword = () => {
 
       if (data.success) {
         toast.success(data.message);
-        navigate("/login");
+        setTimeout(() => {
+          navigate("/login");
+        }, 1500);
       } else {
         toast.error(data.message);
+        setIsSubmitting(false);
       }
     } catch (error) {
       console.error(error);
+      setIsSubmitting(false);
       if (error.response && error.response.data && error.response.data.message) {
         toast.error(error.response.data.message); // ✅ Display actual error message
       } else {
@@ -49,6 +55,7 @@ const ForgotPassword = () => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
+              disabled={isSubmitting}
             />
           </div>
           <div className="mb-3">
@@ -60,6 +67,7 @@ const ForgotPassword = () => {
               value={answer}
               onChange={(e) => setAnswer(e.target.value)}
               required
+              disabled={isSubmitting}
             />
           </div>
           <div className="mb-3">
@@ -71,6 +79,7 @@ const ForgotPassword = () => {
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
               required
+              disabled={isSubmitting}
             />
           </div>
           <button type="submit" className="btn btn-primary">
