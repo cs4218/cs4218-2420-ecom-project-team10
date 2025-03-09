@@ -106,7 +106,7 @@ describe("SearchInput Component", () => {
         fireEvent.click(searchButton);
 
         expect(mockNavigate).not.toHaveBeenCalled();
-        await waitFor(() => expect(toast.error).toHaveBeenCalledWith("Please enter at least one character."))
+        await waitFor(() => expect(toast.error).toHaveBeenCalledWith("Please enter at least one character.", {"duration": 800}))
 
     })
 });
