@@ -6,7 +6,7 @@ import JWT from "jsonwebtoken";
 
 export const registerController = async (req, res) => {
   try {
-    const { name, email, password, phone, address, answer } = req.body;
+    const { name, email, password, phone, address, DOB, answer } = req.body;
     //validations
     if (!name) {
       return res.send({ error: "Name is Required" });
@@ -20,8 +20,17 @@ export const registerController = async (req, res) => {
     if (!phone) {
       return res.send({ message: "Phone no is Required" });
     }
+    if (!/^\d{2,15}$/.test(phone)) {
+      return res.status(400).send({ message: "Phone number must not exceed 15 digits and can contain only numbers" });
+    }
     if (!address) {
       return res.send({ message: "Address is Required" });
+    }
+    if (!DOB) {
+      return res.send({ message: "Date of Birth is Required" });
+    }
+    if (new Date(DOB) > new Date()) {
+      return res.status(400).send({ message: "Date of Birth cannot be in the future" });
     }
     if (!answer) {
       return res.send({ message: "Answer is Required" });
@@ -37,7 +46,7 @@ export const registerController = async (req, res) => {
     if (exisitingUser) {
       return res.status(200).send({
         success: false,
-        message: "Already Register please login",
+        message: "Already registered, please login",
       });
     }
     //register user
@@ -54,14 +63,14 @@ export const registerController = async (req, res) => {
 
     res.status(201).send({
       success: true,
-      message: "User Register Successfully",
+      message: "User Registered Successfully",
       user,
     });
   } catch (error) {
     console.log(error);
     res.status(500).send({
       success: false,
-      message: "Errro in Registeration",
+      message: "Error in Registration",
       error,
     });
   }
@@ -83,7 +92,7 @@ export const loginController = async (req, res) => {
     if (!user) {
       return res.status(404).send({
         success: false,
-        message: "Email is not registerd",
+        message: "Email is not registered",
       });
     }
     const match = await comparePassword(password, user.password);
@@ -126,13 +135,13 @@ export const forgotPasswordController = async (req, res) => {
   try {
     const { email, answer, newPassword } = req.body;
     if (!email) {
-      res.status(400).send({ message: "Emai is required" });
+      return res.status(400).send({ message: "Email is required" });
     }
     if (!answer) {
-      res.status(400).send({ message: "answer is required" });
+      return res.status(400).send({ message: "Answer is required" });
     }
     if (!newPassword) {
-      res.status(400).send({ message: "New Password is required" });
+      return res.status(400).send({ message: "New Password is required" });
     }
     //check
     const user = await userModel.findOne({ email, answer });
