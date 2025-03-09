@@ -1,5 +1,5 @@
 import { jest } from "@jest/globals";
-import { registerController, loginController } from "./authController";
+import { registerController, loginController, forgotPasswordController, testController } from "./authController";
 import userModel from "../models/userModel";
 import * as authHelper from "../helpers/authHelper"; 
 
@@ -173,7 +173,7 @@ describe("Login Controller Test", () => {
         message: "Invalid Password",
     });
   });
-  
+
   describe("Forgot Password Controller Test", () => {
     let req, res;
   
