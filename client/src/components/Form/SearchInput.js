@@ -10,7 +10,7 @@ const SearchInput = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (values.keyword.trim() === "") {
-      toast.error("Please enter at least one character.");
+      toast.error("Please enter at least one character.", { duration: 800 });
       return;
     }
     try { 
