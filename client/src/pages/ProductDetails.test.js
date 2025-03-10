@@ -148,4 +148,26 @@ describe("ProductDetails Component", () => {
 
   });
 
+  test("should display more details when clicking 'More Details'", async () => { 
+    axios.get.mockResolvedValueOnce({ data: { product: mockProduct } });
+    axios.get.mockResolvedValueOnce({ data: { products: mockRelatedProducts } });
+
+    render(
+      <MemoryRouter initialEntries={["/product/test-product"]}>
+        <Routes>
+          <Route path="/product/:slug" element={<ProductDetails />} />
+        </Routes>
+      </MemoryRouter>
+    );
+
+    await waitFor(() => expect(screen.getByText("Name : Test Product")).toBeInTheDocument());
+
+    const moreDetailsButton = screen.getByText("More Details");
+    fireEvent.click(moreDetailsButton);
+
+    await waitFor(() => {
+      expect(screen.getByText("Full Product Specifications")).toBeInTheDocument();
+    });
+  }); 
+
 });
