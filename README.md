@@ -29,4 +29,4 @@ Run one of the following test commands based on your needs:
   ```
   npm run test:backend
   ```
-### CI link: [Empty link]()
+### CI link: [Link](https://github.com/cs4218/cs4218-2420-ecom-project-team10/actions/runs/13755752980/job/38462846676)
