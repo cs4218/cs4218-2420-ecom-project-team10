@@ -6,3 +6,9 @@ node_modules
 .env
 /coverage
 coverage
+/coverage/
+coverage/clover.xml
+coverage/clover.xml
+coverage/coverage-final.json
+coverage/lcov.info
+coverage/lcov-report/index.html
