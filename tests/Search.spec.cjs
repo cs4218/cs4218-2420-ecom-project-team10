@@ -28,7 +28,7 @@ test.describe("Search Results", () => {
 
     });
     
-    test('should add to cart when ADD TO CART button clicked', async ({ page }) => {
+    test('should navigate to search results page and add to cart when ADD TO CART button clicked', async ({ page }) => {
         // search for an item 
         const searchBar = page.getByRole('searchbox', { name: 'Search' });
 

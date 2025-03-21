@@ -32,7 +32,9 @@ test.describe("Product Details", () => {
         await expect(page.getByRole('button', { name: 'More Details' }).first()).toBeVisible();
         await expect(page.getByRole('button', { name: 'ADD TO CART' }).nth(1)).toBeVisible();
 
-    })
+    });
+
+    
 
     test('should allow related products to be added to cart', async ({ page }) => {
         // Assert empty cart at first
