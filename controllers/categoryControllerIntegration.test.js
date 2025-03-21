@@ -5,7 +5,6 @@ import app from "../server.js";
 import categoryModel from "../models/categoryModel.js";
 
 let mongoServer;
-let server; 
 
 describe("Category API Integration Tests", () => {
 
