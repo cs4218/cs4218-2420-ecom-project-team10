@@ -34,7 +34,12 @@ test.describe("Product Details", () => {
 
     });
 
-    
+    test("should show the related products for product", async ({ page }) => {
+
+        await expect(page.getByRole('heading', { name: 'Similar Products ➡️' })).toBeVisible();
+        await expect(page.locator('div').filter({ hasText: /^Textbook\$79\.99A comprehensive textbook\.\.\.More DetailsADD TO CART$/ }).first()).toBeVisible();
+        await expect(page.locator('div').filter({ hasText: /^Novel\$14\.99A bestselling novel\.\.\.More DetailsADD TO CART$/ }).first()).toBeVisible();
+    })
 
     test('should allow related products to be added to cart', async ({ page }) => {
         // Assert empty cart at first
