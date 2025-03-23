@@ -315,16 +315,18 @@ describe("Order and Profile API Tests", () => {
         .put("/api/v1/auth/profile")
         .set("Authorization", testToken)
         .send({
-          name: "Updated Test User",
-          phone: "9876543210",
-          address: "456 Updated Street"
+          name: 'Updated Test User',
+          phone: '5555555555',
+          address: '789 Updated Street',
+          email: 'test@gmail.com'
         });
       
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
       expect(res.body.message).toContain("Profile Updated");
       expect(res.body.updatedUser.name).toBe("Updated Test User");
-      expect(res.body.updatedUser.phone).toBe("9876543210");
+      expect(res.body.updatedUser.phone).toBe("5555555555");
+      expect(res.body.updatedUser.email).toBe('test@gmail.com');
     });
     
     test("PUT /api/v1/auth/profile - should reject short passwords", async () => {
@@ -332,11 +334,15 @@ describe("Order and Profile API Tests", () => {
         .put("/api/v1/auth/profile")
         .set("Authorization", testToken)
         .send({
-          password: "12345" // Less than 6 characters
+          name: 'Updated Test User',
+          phone: '5555555555',
+          address: '789 Updated Street',
+          email: 'test@gmail.com',
+          password: '12345' // Too short
         });
       
-      expect(res.status).toBe(200); 
-      expect(res.body.error).toBe("Passsword is required and 6 character long");
+        expect(res.status).toBe(400);
+        expect(res.body.message).toBe('Password must be at least 6 characters long');
     });
     
     test("PUT /api/v1/auth/profile - should handle unauthorized access", async () => {
