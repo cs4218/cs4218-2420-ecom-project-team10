@@ -23,7 +23,9 @@ jest.mock("../context/search", () => ({
 
 jest.mock("../hooks/useCategory", () => jest.fn(() => []));
 
-
+jest.mock("../components/Layout", () => {
+  return ({ children }) => <div data-testid="mock-layout">{children}</div>;
+});
 
 Object.defineProperty(window, 'localStorage', {
   value: {
