@@ -7,7 +7,7 @@ import { useSearch } from "../../context/search";
 import { MemoryRouter } from "react-router-dom";
 import "@testing-library/jest-dom";
 
-// Mocking useAuth and useCart hooks
+// Mocking hooks
 jest.mock("../../context/auth", () => ({
   useAuth: jest.fn(),
 }));
