@@ -326,7 +326,8 @@ describe('Auth Controller Extended Integration Tests', () => {
       const updatedData = {
         name: 'Updated Test User',
         phone: '5555555555',
-        address: '789 Updated Street'
+        address: '789 Updated Street',
+        email: 'test@gmail.com'
       };
       
       const res = await request(app)
@@ -336,14 +337,19 @@ describe('Auth Controller Extended Integration Tests', () => {
       
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
-      expect(res.body.message).toBe('Profile Updated SUccessfully');
+      expect(res.body.message).toBe('Profile Updated Successfully');
       expect(res.body.updatedUser.name).toBe(updatedData.name);
       expect(res.body.updatedUser.phone).toBe(updatedData.phone);
       expect(res.body.updatedUser.address).toBe(updatedData.address);
+      expect(res.body.updatedUser.email).toBe(updatedData.email);
     });
     
     test('should reject passwords shorter than 6 characters', async () => {
       const updatedData = {
+        name: 'Updated Test User',
+        phone: '5555555555',
+        address: '789 Updated Street',
+        email: 'test@gmail.com',
         password: '12345' // Too short
       };
       
@@ -352,8 +358,8 @@ describe('Auth Controller Extended Integration Tests', () => {
         .set('Authorization', `Bearer ${testToken}`)
         .send(updatedData);
       
-      expect(res.status).toBe(200);
-      expect(res.body.error).toBe('Passsword is required and 6 character long');
+        expect(res.status).toBe(400);
+        expect(res.body.message).toBe('Password must be at least 6 characters long');
     });
     
     test('should reject unauthorized access', async () => {
@@ -381,7 +387,7 @@ describe('Auth Controller Extended Integration Tests', () => {
       
       expect(res.status).toBe(400);
       expect(res.body.success).toBe(false);
-      expect(res.body.message).toBe('Error WHile Update profile');
+      expect(res.body.message).toBe('Email is required');
       
       // Restore the original implementation
       jest.restoreAllMocks();
