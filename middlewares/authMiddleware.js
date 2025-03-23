@@ -7,10 +7,9 @@ export const requireSignIn = async (req, res, next) => {
         if (!req.headers.authorization) { 
             return res.status(401).json({ success: false, message: "Unauthorized: No token provided" });
         }
-        const decode = JWT.verify(
-            req.headers.authorization,
-            process.env.JWT_SECRET
-        );
+
+        const token = req.headers.authorization.replace(/^Bearer\s+/, ""); // handles "Bearer xyz"
+        const decode = JWT.verify(token, process.env.JWT_SECRET);
         req.user = decode;
         next();
     } catch (error) {
