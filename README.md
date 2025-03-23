@@ -10,13 +10,13 @@ npm install
 cd ..
 ```
 
-# Run application:
+# 1. Run application:
 At the root of project directory, run:
 ```
 npm run dev
 ```
-# Run tests:  
-Run one of the following test commands based on your needs:
+# 2. Run tests:  
+Run any one of the following test commands based on your needs:
 - **Run all tests:**  
   ```
   npm run test
