@@ -33,7 +33,8 @@ Run one of the following test commands based on your needs:
   ```
   npm run test:backend
   ```
-- **Run ui tests only:**  
+- **Run ui tests only:** 
+Prerequisite: application is running (`npm run dev`)
   ```
   npm run test:ui
   ```
