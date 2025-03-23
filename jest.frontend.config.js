@@ -30,6 +30,8 @@ export default {
     "<rootDir>/client/src/components/*.test.js",
   ],
 
+  setupFiles: ["<rootDir>/jest.setup.js"],
+  
   // jest code coverage
   collectCoverage: true,
   collectCoverageFrom: ["client/src/pages/**"],
