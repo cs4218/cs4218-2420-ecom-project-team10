@@ -4,7 +4,6 @@ import { MemoryRouter } from "react-router-dom";
 import "@testing-library/jest-dom";
 import Dashboard from "../../pages/user/Dashboard";
 
-// Mock Layout to avoid rendering full layout
 jest.mock("../../components/Layout", () => ({ children }) => (
   <div data-testid="layout">{children}</div>
 ));
