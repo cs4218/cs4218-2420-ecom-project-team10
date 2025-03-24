@@ -51,4 +51,17 @@ describe("Contact Page", () => {
     expect(screen.getByTestId("bi-phone")).toBeInTheDocument();
     expect(screen.getByTestId("bi-support")).toBeInTheDocument();
   });
+
+  it("ensures layout renders properly", () => {
+    render(
+      <MemoryRouter initialEntries={["/contact"]}>
+        <Routes>
+          <Route path="/contact" element={<Contact />} />
+        </Routes>
+      </MemoryRouter>
+    );
+
+    expect(screen.getByTestId("layout")).toBeInTheDocument();
+  });
+
 });
