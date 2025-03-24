@@ -170,4 +170,18 @@ describe("ProductDetails Component", () => {
     });
   }); 
 
+  test("ensures the price is correctly formatted", async () => {
+    axios.get.mockResolvedValueOnce({ data: { product: mockProduct } });
+    render(
+      <MemoryRouter initialEntries={["/product/test-product"]}>
+        <Routes>
+          <Route path="/product/:slug" element={<ProductDetails />} />
+        </Routes>
+      </MemoryRouter>
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText("Price : $99.99")).toBeInTheDocument();
+    });
+  });
 });
